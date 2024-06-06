@@ -183,9 +183,9 @@ def put_word_list(grid, word_list):
                         new_grid[i,j] = char
                     flag = False
         else :
-            print "----------"
-            print "This is not posible ... :D"
-            print "----------"
+            print( "----------")
+            print( "This is not posible ... :D")
+            print( "----------")
     return new_grid
 
 def fill_grid(grid, blank=False):
