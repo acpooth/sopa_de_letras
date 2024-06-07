@@ -11,12 +11,25 @@
 # Copyright:   (c) acph 2012
 # Licence:     GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007
 #------------------------------
-"""Este programa generará una sopa de letras """
+
+"""Program for create a soup of letters. :P"""
 
 import numpy as np
 import codecs
 
 letras = u"ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
+
+
+def remove_accent(s):
+    accents = {'Á': "A", 'É': "E", 'Í':"I", 'Ó':"O", 'Ú':"U",
+               'Ü':"U",
+               'á': "a", 'é': "e", 'í':"i", 'ó':"o", 'ú':"u",
+               'ü': 'u'
+                }
+    for letter in accents.keys():
+        if letter in s:
+            s = s.replace(letter, accents[letter])
+    return s
 
 
 def create_grid(k, l):
@@ -28,8 +41,9 @@ def create_grid(k, l):
     """
     return np.zeros((k, l), dtype="<U1")
 
+
 def grid_random_pos(n, m):
-    """return random indeces for n and m
+    """Return random indeces for n and m.
     
     Arguments:
     - `n`: number of rows of the array
@@ -38,8 +52,8 @@ def grid_random_pos(n, m):
     i = np.random.randint(0, n)
     j = np.random.randint(0, m)
     return i, j
-    
-    
+
+
 def put_word_list(grid, word_list):
     """Place the word list in the grid
     
@@ -188,9 +202,10 @@ def put_word_list(grid, word_list):
             print( "----------")
     return new_grid
 
+
 def fill_grid(grid, blank=False):
-    """fills the grid with random letters
-    
+    """Fill the grid with random letters.
+
     Arguments:
     - `grid`:
     """
@@ -205,23 +220,46 @@ def fill_grid(grid, blank=False):
                     char = np.random.choice(list(letras))
                     new_grid[i, j] = char
     return new_grid
-    
-            
+
+
 if __name__ == '__main__':
-    palabras = [u"PASITO", u"NACHO", u"IGNACIO", u"TORRE", u"CUBOS",
-                u"ABUELO", u"NIÑO", u"ENFERMEDAD", u"INFARTO",
-                u"ENSEÑANZA", u"CAMINAR", u"FELICIDAD", u"JUEGO",
-                u"SUSTO", u"HOSPITAL", u"CAMA", u"ESPERANZA", u"ESTORNUDO",
-                u"PARQUE", u"ELEFANTE"]
-    grid = create_grid(30, 30)
+    import argparse
+
+    def argument_parser():
+        parser = argparse.ArgumentParser()
+        parser.add_argument('wordlist',
+                            help='File containing a list of words.')
+        parser.add_argument('--gridsize', '-g', default=30,
+                            help='Number of columns and rows [30].')
+        parser.add_argument('--header', '-j', default='',
+                            help='Text to put at the begining fo the file')
+
+        return parser
+
+    args = argument_parser().parse_args()
+    # palabras = [u"PASITO", u"NACHO", u"IGNACIO", u"TORRE", u"CUBOS",
+    #             u"ABUELO", u"NIÑO", u"ENFERMEDAD", u"INFARTO",
+    #             u"ENSEÑANZA", u"CAMINAR", u"FELICIDAD", u"JUEGO",
+    #             u"SUSTO", u"HOSPITAL", u"CAMA", u"ESPERANZA", u"ESTORNUDO",
+    #             u"PARQUE", u"ELEFANTE"]
+    # grid = create_grid(30, 30)
+    ngrid =  int(args.gridsize)
+    grid = create_grid(ngrid, ngrid)
+    palabrasfile = args.wordlist
+    header = args.header
+
+    with open(palabrasfile, 'r') as inf:
+        palabras = inf.read().split()
+    palabras = [remove_accent(p.upper()) for p in palabras]
 
     w_grid = put_word_list(grid, palabras)
     b_grid = fill_grid(w_grid, True)
     
     with codecs.open('pru30.txt', 'w', 'utf-8') as outf:
-        outf.write("Escuela 21. 4to-C\n")
-        outf.write("SOPA DE LETRAS: \n")
-         
+        # outf.write("Escuela 21. 4to-C\n")
+        # outf.write("SOPA DE LETRAS: \n")
+        outf.write(header + '\n\n')
+
         for l in b_grid:
             line = ' '.join(list(l))
             line += "\n"
@@ -235,8 +273,9 @@ if __name__ == '__main__':
     w_grid = fill_grid(w_grid)
     
     with codecs.open('pru_noblank30.txt', 'w', 'utf-8') as outf:
-        outf.write("Escuela 21. 4to-C\n")
-        outf.write("SOPA DE LETRAS: \n")
+        # outf.write("Escuela 21. 4to-C\n")
+        # outf.write("SOPA DE LETRAS: \n")
+        outf.write(header + '\n\n')
 
         for l in w_grid:
             line = ' '.join(list(l))
